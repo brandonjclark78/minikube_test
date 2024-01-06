@@ -7,27 +7,22 @@
 # Vagrantfile
 
 # Determine the operating system
-if Vagrant::Util::Platform.windows?
-  # Windows path
-  passwords_path = File.expand_path("C:\Users\brandon\OneDrive\Code\Vagrant\secrets\passwords.rb", __FILE__)
-else
-  # Linux path
-  passwords_path = File.expand_path("/secrets/passwords.rb", __FILE__)
-end
+passwords_path = File.expand_path("/shared/secrets/secret_vars.rb", __FILE__)
+
 
 # Require the passwords.rb file
 require_relative passwords_path
 
 
 
-#require_relative 'passwords.rb'
+
 
 #Include the Module name 'Secrets' in this Vagrant
 include Secrets
 
 
 nodes = {
-"controller" => ["generic/rocky9", 2, 16384, 20 ]#,
+"minikube-test" => ["generic/ubuntu2204", 2, 16384, 20 ]#,
 #"controller" => ["generic/ubuntu2204", 2, 16384, 20 ]#,
 #"kube-node1" => ["kalilinux/rolling", 2, 4096, 20 ],
 #"kube-node2" => ["kalilinux/rolling", 2, 4096, 20 ]
@@ -45,13 +40,15 @@ Vagrant.configure(2) do |config|
       machine.vm.provider :vmware_esxi do |esxi|
         esxi.esxi_hostname         = Secrets::ESXi_Hostname
         esxi.esxi_username         = Secrets::ESXi_Username
-        esxi.esxi_password         = Secrets::ESXi_Password
-        esxi.esxi_virtual_network  = "VM_PortGroup"
+        esxi.esxi_password         = Secrets::ESXi_Password 
+        esxi.esxi_virtual_network  = Secrets::ESXi_VirtualNetwork
+        #esxi.guest_mac_address     = Secrets::Controller_MAC
         esxi.guest_numvcpus        = numvcpus
         esxi.guest_memsize         = memory
         esxi.guest_storage         = storage
 		    esxi.guest_disk_type       = 'thin'
         esxi.local_allow_overwrite = 'True'
+        esxi.guest_nic_type        = 'vmxnet3'
 
       end
 

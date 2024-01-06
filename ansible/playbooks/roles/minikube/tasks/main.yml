@@ -1,0 +1,40 @@
+---
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+
+- name: Install dependencies
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - curl
+    - apt-transport-https
+    - docker.io
+
+- name: Download Minikube binary
+  ansible.builtin.get_url:
+    url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64"
+    dest: "/usr/local/bin/minikube"
+    mode: '0755'
+
+- name: Make Minikube executable
+  ansible.builtin.file:
+    path: "/usr/local/bin/minikube"
+    mode: '0755'
+  become: true
+
+- name: Check if Minikube is already running
+  ansible.builtin.shell:
+    cmd: "minikube status --format={{'{{'}}.minikube.status{{'}}'}}"
+  register: minikube_status
+  changed_when: false
+  failed_when: false
+
+- name: Start Minikube with Docker driver if not already running
+  ansible.builtin.command:
+    cmd: "minikube start --driver=docker"
+  when: "minikube_status.stdout != 'Running'"
+  become: true

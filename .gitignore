@@ -1,2 +1,4 @@
 passwords.rb
 .vagrant
+/shared/.vagrant    
+//10.1.2.240/shared/minikube_test/.vagrant
